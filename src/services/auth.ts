@@ -7,6 +7,7 @@ import { randomBytes } from 'crypto';
 import { IUser, IUserInputDTO } from '../interfaces/IUser';
 import { EventDispatcher, EventDispatcherInterface } from '../decorators/eventDispatcher';
 import events from '../subscribers/events';
+import LoadKeys from '../helpers/load_files';
 
 @Service()
 export default class AuthService {
@@ -14,6 +15,7 @@ export default class AuthService {
     @Inject('userModel') private userModel: Models.UserModel,
     private mailer: MailerService,
     @Inject('logger') private logger,
+    private loadKey: LoadKeys,
     @EventDispatcher() private eventDispatcher: EventDispatcherInterface,
   ) {
   }
@@ -104,7 +106,6 @@ export default class AuthService {
     const today = new Date();
     const exp = new Date(today);
     exp.setDate(today.getDate() + 60);
-
     /**
      * A JWT means JSON Web Token, so basically it's a json that is _hashed_ into a string
      * The cool thing is that you can add custom properties a.k.a metadata
@@ -122,7 +123,10 @@ export default class AuthService {
         name: user.name,
         exp: exp.getTime() / 1000,
       },
-      config.jwtSecret
+      this.loadKey.key(),
+      {
+      algorithm: config.jwtAlgorithm,
+      }
     );
   }
 }

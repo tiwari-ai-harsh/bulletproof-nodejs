@@ -1,5 +1,7 @@
 import jwt from 'express-jwt';
+import { Container } from 'typedi';
 import config from '../../config';
+import LoadKeys from '../../helpers/load_files';
 
 /**
  * We are assuming that the JWT will come in a header with the form
@@ -25,7 +27,7 @@ const getTokenFromHeader = req => {
 };
 
 const isAuth = jwt({
-  secret: config.jwtSecret, // The _secret_ to sign the JWTs
+  secret: Container.get(LoadKeys).key(), // The _secret_ to sign the JWTs
   algorithms: [config.jwtAlgorithm], // JWT Algorithm
   userProperty: 'token', // Use req.token to store the JWT
   getToken: getTokenFromHeader, // How to extract the JWT from the request
